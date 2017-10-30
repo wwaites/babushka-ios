@@ -48,10 +48,8 @@ class GameScene: SKScene {
     private var sock : Int32 = 0
     private var src_addr = sockaddr_in()
     private var dst_addr = sockaddr_in()
-    private var host = "10.38.40.204"
+    private var host = "192.168.88.2"
     private var port : Int16 = 9003
-
-    // private var host = "192.168.4.1"
     
     // put status on the screen, usually if something has
     // gone wrong
@@ -106,13 +104,19 @@ class GameScene: SKScene {
             label.text = s
         }
         
-        // invert the left/right if we are going backwards for
-        // more intuitive control
-        var reverse : Double = 1
-        if x < 0 { reverse = -1 }
-        let left : Int8 = Int8((-1 * x + reverse * y) * 63)
-        let right : Int8 = Int8((-1 * x - reverse * y) * 63)
-        setMotor(left: left, right: right)
+        // scale x and y so we don't have to turn the
+        let xx = x / 0.5
+        let yy = y
+        var left = (xx + yy) * 127
+        var right = (xx - yy) * 127
+        
+        // clip so that we don't exceed the range of uint
+        if left > 127 { left = 127 }
+        if left < -127 { left = -127 }
+        if right > 127 { right = 127 }
+        if right < -127 { right = -127 }
+
+        setMotor(left: Int8(left), right: Int8(right))
     }
     
     // send motor control data to the network
